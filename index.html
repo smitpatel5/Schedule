@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WWCC RA Duty Schedule</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container"> 
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-calendar-alt"></i> WWCC RA Duty Schedule</h1>
+                <p class="subtitle">2025-2026 Academic Year</p>
+            </div>
+           
+        </header>
+
+    <!-- Stats cards removed as requested -->
+
+
+
+        <div class="schedule-container">
+            <div class="schedule-header">
+                <h2>Monthly Schedule</h2>
+                <div class="filters">
+                    <div class="month-selector">
+                        <label for="monthSelect">Schedule for August:</label>
+                        <select id="monthSelect">
+                            <option value="8" selected>August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <div class="ra-selector">
+                        <label for="raSelect">Filter by RA:</label>
+                        <select id="raSelect">
+                            <option value="all">All RAs</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-color primary"></span>
+                        <span>Primary</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color secondary"></span>
+                        <span>Secondary</span>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="schedule-grid" id="scheduleGrid">
+                <!-- Schedule will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="ra-summary">
+            <h2>RA Summary</h2>
+            <div class="ra-grid" id="raGrid">
+                <!-- RA summary will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Shift Modal -->
+    <div id="addShiftModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Shift</h3>
+                <span class="close" onclick="closeAddShiftModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="addShiftForm">
+                    <div class="form-group">
+                        <label for="shiftDate">Date:</label>
+                        <input type="date" id="shiftDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="shiftRA">RA:</label>
+                        <select id="shiftRA" required>
+                            <option value="">Select RA</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="shiftType">Shift Type:</label>
+                        <select id="shiftType" required>
+                            <option value="">Select Type</option>
+                            <option value="primary">Primary</option>
+                            <option value="secondary">Secondary</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="shiftNotes">Notes (Optional):</label>
+                        <textarea id="shiftNotes" rows="3"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddShiftModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Shift</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="script.js"></script>
+</body>
+</html>
