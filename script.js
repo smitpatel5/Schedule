@@ -506,3 +506,23 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+document.addEventListener("DOMContentLoaded", () => {
+  const navToggle = document.getElementById("navToggle");
+  const navMenu = document.getElementById("navMenu");
+
+  navToggle.addEventListener("click", () => {
+    navMenu.classList.toggle("open");
+    navToggle.innerHTML = navMenu.classList.contains("open")
+      ? '<i class="fas fa-times"></i>'   // X icon
+      : '<i class="fas fa-bars"></i>';  // hamburger icon
+  });
+
+  // Close menu when a link is clicked (mobile UX best practice)
+  document.querySelectorAll(".nav-menu .nav-link").forEach(link => {
+    link.addEventListener("click", () => {
+      navMenu.classList.remove("open");
+      navToggle.innerHTML = '<i class="fas fa-bars"></i>';
+    });
+  });
+});

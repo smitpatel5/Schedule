@@ -307,6 +307,40 @@ body {
     border-radius: var(--radius-full);
 }
 
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--gray-700);
+}
+
+/* Mobile menu styles */
+@media (max-width: 768px) {
+  .nav-toggle {
+    display: block;
+    z-index: 1100;
+  }
+
+  .nav-menu {
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+  }
+
+  .nav-menu.open {
+    display: flex;
+  }
+}
+
 /* Buttons */
 .btn {
     padding: 0.75rem 1.5rem;
