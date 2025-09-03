@@ -1,138 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WWCC RA Duty Schedule</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WWCC RA Duty Schedule</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Animated Background -->
-    <div class="animated-background">
-        <div class="floating-shapes">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
-            <div class="shape shape-4"></div>
-            <div class="shape shape-5"></div>
-        </div>
-    </div>
-
-    <!-- Navigation -->
-<nav class="navbar">
-  <div class="nav-container">
-    <div class="nav-brand">
-      <div class="brand-icon">
-        <i class="fas fa-calendar-alt"></i>
-      </div>
-      <span class="brand-text">RA Schedule</span>
-    </div>
-
-    <!-- Hamburger Button -->
-    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
-      <i class="fas fa-bars"></i>
-    </button>
-
-    <!-- Menu -->
-    <div class="nav-menu" id="navMenu">
-      <a href="#schedule" class="nav-link active">Schedule</a>
-      <a href="#summary" class="nav-link">Summary</a>
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSduKFoH8Mkxa-oUY1NXB7jQpBuviNNtzovCmC4xXtcChEFsYA/viewform?pli=1" 
-         class="nav-link external-link" target="_blank" rel="noopener">Duty Log</a>
+  <!-- Animated Background -->
+  <div class="animated-background">
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+      <div class="shape shape-5"></div>
     </div>
   </div>
-</nav>
 
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Hero Section -->
-        <section class="hero-section">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h1 class="hero-title">
-                        <span class="title-line">WWCC RA Duty</span>
-                        <span class="title-line highlight">Schedule</span>
-                    </h1>
-                    <p class="hero-subtitle">2025-2026 Academic Year</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Schedule Section -->
-        <section id="schedule" class="schedule-section">
-            <div class="section-header">
-                <div class="section-title">
-                    <h2>Monthly Schedule</h2>
-                    <p>View RA duty assignments</p>
-                </div>
-                <div class="section-controls">
-                    <div class="control-group">
-                        <label for="monthSelect">Month</label>
-                        <div class="select-wrapper">
-                            <select id="monthSelect" class="modern-select">
-                                <option value="8" selected>August</option>
-                                <option value="9">September</option>
-                                <option value="10">October</option>
-                                <option value="11">November</option>
-                                <option value="12">December</option>
-                            </select>
-                            <i class="fas fa-chevron-down"></i>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label for="raSelect">RA Filter</label>
-                        <div class="select-wrapper">
-                            <select id="raSelect" class="modern-select">
-                                <option value="all">All RAs</option>
-                            </select>
-                            <i class="fas fa-chevron-down"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="legend-container">
-                <div class="legend-item">
-                    <div class="legend-color primary"></div>
-                    <span>Primary Duty</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color secondary"></div>
-                    <span>Secondary Duty</span>
-                </div>
-            </div>
-
-            <div class="schedule-container">
-                <div class="schedule-grid" id="scheduleGrid">
-                    <!-- Schedule will be populated by JavaScript -->
-                </div>
-            </div>
-        </section>
-
-        <!-- RA Summary Section -->
-        <section id="summary" class="summary-section">
-            <div class="section-header">
-                <div class="section-title">
-                    <h2>RA Summary</h2>
-                    <p>Individual RA shift overview</p>
-                </div>
-            </div>
-            <div class="ra-grid" id="raGrid">
-                <!-- RA summary will be populated by JavaScript -->
-            </div>
-        </section>
-    </main>
-
-    <!-- Loading Spinner -->
-    <div class="loading-spinner" id="loadingSpinner">
-        <div class="spinner"></div>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <div class="brand-icon">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        <span class="brand-text">RA Schedule</span>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="nav-menu" id="navMenu">
+        <a href="#schedule" class="nav-link active">Schedule</a>
+        <a href="#summary" class="nav-link">Summary</a>
+        <a href="#swap" class="nav-link">Shift Swap</a>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSduKFoH8Mkxa-oUY1NXB7jQpBuviNNtzovCmC4xXtcChEFsYA/viewform?pli=1" 
+           class="nav-link external-link" target="_blank" rel="noopener">Duty Log</a>
+      </div>
     </div>
+  </nav>
 
-    <script src="script.js"></script>
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 class="hero-title">
+            <span class="title-line">WWCC RA Duty</span>
+            <span class="title-line highlight">Schedule</span>
+          </h1>
+          <p class="hero-subtitle">2025-2026 Academic Year</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Schedule Section -->
+    <section id="schedule" class="schedule-section">
+      <div class="section-header">
+        <div class="section-title">
+          <h2>Monthly Schedule</h2>
+          <p>View RA duty assignments</p>
+        </div>
+        <div class="section-controls">
+          <div class="control-group">
+            <label for="monthSelect">Month</label>
+            <div class="select-wrapper">
+              <select id="monthSelect" class="modern-select">
+                <option value="8" selected>August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+          </div>
+          <div class="control-group">
+            <label for="raSelect">RA Filter</label>
+            <div class="select-wrapper">
+              <select id="raSelect" class="modern-select">
+                <option value="all">All RAs</option>
+              </select>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+          </div>
+          <div class="control-group">
+            <label>View</label>
+            <div class="view-toggle">
+              <button class="view-toggle-btn active" id="listViewBtn">
+                <i class="fas fa-list"></i>
+                <span>List</span>
+              </button>
+              <button class="view-toggle-btn" id="calendarViewBtn">
+                <i class="fas fa-calendar"></i>
+                <span>Calendar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="legend-container">
+        <div class="legend-item">
+          <div class="legend-color primary"></div>
+          <span>Primary Duty</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color secondary"></div>
+          <span>Secondary Duty</span>
+        </div>
+      </div>
+
+      <!-- List View -->
+      <div class="schedule-container" id="listView">
+        <div class="schedule-grid" id="scheduleGrid"></div>
+      </div>
+
+      <!-- Calendar View -->
+      <div class="calendar-view" id="calendarView" style="display: none;">
+        <div class="calendar-header">
+          <div class="calendar-title" id="calendarTitle">August 2025</div>
+          <div class="calendar-nav">
+            <button class="calendar-nav-btn" id="prevMonthBtn"><i class="fas fa-chevron-left"></i></button>
+            <button class="calendar-nav-btn" id="nextMonthBtn"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <div class="calendar-weekdays">
+          <div class="calendar-weekday">Sun</div>
+          <div class="calendar-weekday">Mon</div>
+          <div class="calendar-weekday">Tue</div>
+          <div class="calendar-weekday">Wed</div>
+          <div class="calendar-weekday">Thu</div>
+          <div class="calendar-weekday">Fri</div>
+          <div class="calendar-weekday">Sat</div>
+        </div>
+        <div class="calendar-days" id="calendarDays"></div>
+      </div>
+    </section>
+
+    <!-- RA Summary Section -->
+    <section id="summary" class="summary-section">
+      <div class="section-header">
+        <div class="section-title">
+          <h2>RA Summary</h2>
+          <p>Individual RA shift overview</p>
+        </div>
+      </div>
+      <div class="ra-grid" id="raGrid"></div>
+    </section>
+
+    <!-- Shift Swap Section -->
+    <section id="swap" class="swap-section">
+      <div class="section-header">
+        <div class="section-title">
+          <h2>Shift Swap</h2>
+          <p>Request to swap shifts with another RA</p>
+        </div>
+      </div>
+      
+      <div class="swap-container">
+        <!-- Progress Steps -->
+        <div class="swap-progress">
+          <div class="progress-step active" data-step="1">
+            <div class="step-number">1</div>
+            <div class="step-label">Select Yourself</div>
+          </div>
+          <div class="progress-step" data-step="2">
+            <div class="step-number">2</div>
+            <div class="step-label">Your Shift</div>
+          </div>
+          <div class="progress-step" data-step="3">
+            <div class="step-number">3</div>
+            <div class="step-label">Target RA</div>
+          </div>
+          <div class="progress-step" data-step="4">
+            <div class="step-number">4</div>
+            <div class="step-label">Their Shift</div>
+          </div>
+          <div class="progress-step" data-step="5">
+            <div class="step-number">5</div>
+            <div class="step-label">Confirmation</div>
+          </div>
+        </div>
+
+        <!-- Step Content Container -->
+        <div class="swap-content">
+          <!-- Step 1: Select Yourself -->
+          <div class="swap-step active" id="step1">
+            <div class="step-header">
+              <h3>Who are you?</h3>
+              <p>Select your name from the list below</p>
+            </div>
+            <div class="ra-selection-grid" id="selfSelectionGrid">
+              <!-- RAs will be populated here -->
+            </div>
+          </div>
+
+          <!-- Step 2: Select Your Shift -->
+          <div class="swap-step" id="step2">
+            <div class="step-header">
+              <h3>Select Your Shift</h3>
+              <p id="step2Subtitle">Choose the shift you want to swap</p>
+            </div>
+            <div class="shift-selection-grid" id="yourShiftsGrid">
+              <!-- Your shifts will be populated here -->
+            </div>
+          </div>
+
+          <!-- Step 3: Select Target RA -->
+          <div class="swap-step" id="step3">
+            <div class="step-header">
+              <h3>Who do you want to swap with?</h3>
+              <p>Select the RA you want to swap shifts with</p>
+            </div>
+            <div class="ra-selection-grid" id="targetSelectionGrid">
+              <!-- Other RAs will be populated here -->
+            </div>
+          </div>
+
+          <!-- Step 4: Select Their Shift -->
+          <div class="swap-step" id="step4">
+            <div class="step-header">
+              <h3>Select Their Shift</h3>
+              <p id="step4Subtitle">Choose which of their shifts you want</p>
+            </div>
+            <div class="shift-selection-grid" id="targetShiftsGrid">
+              <!-- Target RA's shifts will be populated here -->
+            </div>
+          </div>
+
+          <div class="swap-step" id="step5">
+  <div class="step-header">
+    <h3>Review and Execute Swap</h3>
+    <p>Please review the swap details and confirm permissions. The swap will execute automatically when both checkboxes are checked.</p>
+  </div>
+  
+  <div class="swap-summary">
+    <div class="swap-summary-card">
+      <h4>Swap Summary</h4>
+      <div class="swap-details">
+        <div class="swap-from">
+          <div class="swap-label">You will give:</div>
+          <div class="swap-info" id="yourShiftSummary"></div>
+        </div>
+        <div class="swap-arrow">
+          <i class="fas fa-exchange-alt"></i>
+        </div>
+        <div class="swap-to">
+          <div class="swap-label">You will take:</div>
+          <div class="swap-info" id="targetShiftSummary"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="permission-checks">
+    <h4>Permission Confirmations</h4>
+    <p class="permission-note">⚡ The swap will happen automatically when both boxes are checked</p>
+    <div class="checkbox-group">
+      <label class="checkbox-item">
+        <input type="checkbox" id="raPermissionCheck">
+        <span class="checkmark"></span>
+        <span class="checkbox-text">I have permission from <span id="targetRAName"></span> to make this swap</span>
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" id="rdPermissionCheck">
+        <span class="checkmark"></span>
+        <span class="checkbox-text">I have permission from the RD (Resident Director) to make this swap</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="confirmation-actions">
+    <button class="btn btn-secondary" id="backToStep4">
+      <i class="fas fa-arrow-left"></i>
+      Back
+    </button>
+  </div>
+</div>
+
+        <!-- Navigation Buttons -->
+        <div class="swap-navigation" id="swapNavigation">
+          <button class="btn btn-secondary" id="prevStepBtn" style="display: none;">
+            <i class="fas fa-arrow-left"></i>
+            Previous
+          </button>
+          <button class="btn btn-primary" id="nextStepBtn" disabled>
+            Next
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Loading Spinner -->
+  <div class="loading-spinner" id="loadingSpinner">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Success Modal -->
+<div class="modal-overlay" id="successModal" style="display: none;">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Swap Completed Successfully!</h3>
+      <button class="modal-close" id="closeSuccessModal">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-content">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <p>Your shift swap has been completed! The schedule has been updated with the new assignments. Both RAs should receive confirmation of this change.</p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="startNewSwap">
+          <i class="fas fa-plus"></i>
+          Start New Swap
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script src="script.js"></script>
 </body>
 </html>
