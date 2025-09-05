@@ -1897,4 +1897,52 @@ body {
   50% { transform: scale(1.02); }
   100% { transform: scale(1); }
 }
+
+.swap-loading-content h3 {
+    color: #1F2937;
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.swap-loading-content p {
+    color: #6B7280;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Make sure the step container has relative positioning for the overlay */
+.swap-step {
+    position: relative;
+}
+
+/* Style disabled checkboxes during loading */
+input[type="checkbox"]:disabled + label {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+}
+
+.calendar-day-cell.empty-day {
+    background: transparent;
+    border: none;
+    cursor: default;
+}
+
+.calendar-day-cell.empty-day:hover {
+    background: transparent;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Optional: Make the calendar grid more compact when there are fewer rows */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    min-height: auto; /* Remove fixed height if you have one */
+}
 }

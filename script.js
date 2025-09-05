@@ -1,45 +1,79 @@
 class RAScheduleApp {
-    constructor() {
-        this.ras = [];
-        this.shifts = [];
-        this.selectedMonth = '8';
-        this.selectedRA = 'all';
-        this.currentView = 'list';
-        this.currentCalendarDate = new Date(2025, 7, 1); // August 2025
-        this.isLoading = false;
-        
-        // Shift swap state
-        this.swapState = {
-            currentStep: 1,
-            selectedSelfRA: null,
-            selectedYourShift: null,
-            selectedTargetRA: null,
-            selectedTargetShift: null,
-            raPermission: false,
-            rdPermission: false
-        };
+ constructor() {
+    this.ras = [];
+    this.shifts = [];
+    
+    // Automatically select the current month
+    this.selectedMonth = this.getCurrentMonth();
+    this.selectedRA = 'all';
+    this.currentView = 'list';
+    
+    // Set calendar date to current month as well
+    const now = new Date();
+    this.currentCalendarDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    this.isLoading = false;
+    
+    // Shift swap state
+    this.swapState = {
+        currentStep: 1,
+        selectedSelfRA: null,
+        selectedYourShift: null,
+        selectedTargetRA: null,
+        selectedTargetShift: null,
+        raPermission: false,
+        rdPermission: false
+    };
 
-        this.init();
-    }
+    this.init();
+}
 
-    async init() {
-        this.showLoading();
-        await this.loadShifts();
-        this.populateFilters();
-        this.renderSchedule();
-        this.renderRASummary();
-        this.renderCalendar();
-        this.setupEventListeners();
-        this.hideLoading();
-        this.initializeAnimations();
-        this.initializeSwapFeature();
+// Add this new method to get the current month
+getCurrentMonth() {
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11, we need 1-12
+    
+    // Only return months that are available in your schedule (August-December)
+    const availableMonths = [8, 9, 10, 11, 12]; // August through December
+    
+    if (availableMonths.includes(currentMonth)) {
+        return currentMonth.toString();
+    } else {
+        // If current month is not in schedule range, default to the first available month
+        return '8'; // August
     }
+}
+
+
+async init() {
+    this.showLoading();
+    await this.loadShifts();
+    this.populateFilters();
+    
+    // Set the month dropdown to the selected month
+    this.setMonthDropdown();
+    
+    this.renderSchedule();
+    this.renderRASummary();
+    this.renderCalendar();
+    this.setupEventListeners();
+    this.hideLoading();
+    this.initializeAnimations();
+    this.initializeSwapFeature();
+}
 
     showLoading() {
         this.isLoading = true;
         const spinner = document.getElementById('loadingSpinner');
         if (spinner) spinner.style.display = 'flex';
     }
+
+    setMonthDropdown() {
+    const monthSelect = document.getElementById('monthSelect');
+    if (monthSelect) {
+        monthSelect.value = this.selectedMonth;
+    }
+}
 
     hideLoading() {
         this.isLoading = false;
@@ -621,102 +655,221 @@ class RAScheduleApp {
         nextBtn.disabled = !canProceed;
     }
 
-    // New method to check if both permissions are granted and execute swap instantly
-    checkAndExecuteSwap() {
+         // New method to check if both permissions are granted and execute swap instantly
+checkAndExecuteSwap() {
     if (this.swapState.raPermission && this.swapState.rdPermission) {
-        // Both permissions granted - send approval request instead of direct swap
-        this.requestSwapApproval();
+        // Show loading immediately when both boxes are checked
+        this.showSwapLoading();
+        
+        // Execute swap
+        this.executeLocalSwap();
     }
+}
+
+showSwapLoading() {
+    const step5 = document.getElementById('step5');
+    if (!step5) return;
+    
+    // Add loading overlay to step 5
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.id = 'swapLoadingOverlay';
+    loadingOverlay.className = 'swap-loading-overlay';
+    loadingOverlay.innerHTML = `
+        <div class="swap-loading-content">
+            <div class="swap-loading-spinner">
+                <i class="fas fa-sync-alt fa-spin"></i>
+            </div>
+            <h3>Processing Swap...</h3>
+            <p>Please wait while we update the schedule.</p>
+        </div>
+    `;
+    
+    step5.appendChild(loadingOverlay);
+    
+    // Disable checkboxes during processing
+    const raCheckbox = document.getElementById('raPermissionCheck');
+    const rdCheckbox = document.getElementById('rdPermissionCheck');
+    if (raCheckbox) raCheckbox.disabled = true;
+    if (rdCheckbox) rdCheckbox.disabled = true;
+}
+
+// Add this method to hide loading state
+hideSwapLoading() {
+    const loadingOverlay = document.getElementById('swapLoadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.remove();
+    }
+    
+    // Re-enable checkboxes
+    const raCheckbox = document.getElementById('raPermissionCheck');
+    const rdCheckbox = document.getElementById('rdPermissionCheck');
+    if (raCheckbox) raCheckbox.disabled = false;
+    if (rdCheckbox) rdCheckbox.disabled = false;
 }
 
 
 
- async requestSwapApproval() {
-    const swapData = {
-        yourShiftDate: this.swapState.selectedYourShift.date,
-        yourShiftRA: this.swapState.selectedYourShift.ra,
-        yourShiftType: this.swapState.selectedYourShift.type,
-        targetShiftDate: this.swapState.selectedTargetShift.date,
-        targetShiftRA: this.swapState.selectedTargetShift.ra,
-        targetShiftType: this.swapState.selectedTargetShift.type,
-        requestTime: new Date().toISOString()
-    };
-
+async executeLocalSwap() {
+    console.log('Executing local swap...');
+    
     try {
-        this.showLoading();
+        // Sync to Google Sheets FIRST to ensure it works
+        await this.syncSwapToGoogleSheets();
+        console.log('Swap synced to Google Sheets successfully!');
         
-        // Send approval request to Google Apps Script
-        const params = new URLSearchParams({
-            action: 'requestApproval',
-            ...swapData
-        });
+        // Hide loading
+        this.hideSwapLoading();
         
-        const url = `https://script.google.com/macros/s/AKfycbyprKhudlfA4e2fjcdRuA-wYMRfdgB4nZl3uNIMIqDO0xeYQcIfovqihUKK1yghTRPdpA/exec?${params.toString()}`;
+        // Only update local data after successful sync
+        this.updateLocalShiftsAfterSwap();
         
-        console.log('Sending approval request to:', url);
-        
-        const response = await fetch(url, {
-            method: 'GET',
-            mode: 'cors'
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('Approval request response:', result);
-        
-        if (result.success) {
-            // Show success message for approval request
-            this.showApprovalRequestSent();
-        } else {
-            console.error('Failed to send approval request:', result.error);
-            alert(`Error: Could not send approval request. ${result.error || 'Please try again or contact an administrator.'}`);
-        }
+        // Show success message
+        this.showSuccessModal();
         
     } catch (error) {
-        console.error('Error requesting approval:', error);
+        console.error('Failed to execute swap:', error);
         
-        let errorMsg = 'Error: Could not send approval request. ';
-        if (error.name === 'TypeError' && error.message.includes('fetch')) {
-            errorMsg += 'Network connection issue or CORS error. ';
-        } else if (error.message.includes('HTTP error')) {
-            errorMsg += `Server returned ${error.message}. `;
-        } else {
-            errorMsg += error.message + '. ';
-        }
-        errorMsg += 'Please check your internet connection and try again.';
+        // Hide loading
+        this.hideSwapLoading();
         
-        alert(errorMsg);
-    } finally {
-        this.hideLoading();
+        // Show error modal instead of success
+        this.showErrorModal('Failed to complete swap. Please try again or contact your RD.');
     }
 }
-showApprovalRequestSent() {
-    // Update the success modal to show approval request sent instead
+
+showErrorModal(message) {
     const modal = document.getElementById('successModal');
     const modalHeader = modal.querySelector('.modal-header h3');
     const modalContent = modal.querySelector('.modal-content p');
     const modalIcon = modal.querySelector('.success-icon i');
     
-    if (modalHeader) modalHeader.textContent = 'Approval Request Sent!';
+    if (modalHeader) modalHeader.textContent = 'Swap Failed';
     if (modalIcon) {
-        modalIcon.className = 'fas fa-clock';
-        modalIcon.parentElement.style.color = '#F59E0B'; // Amber color for pending
+        modalIcon.className = 'fas fa-exclamation-triangle';
+        modalIcon.parentElement.style.color = '#EF4444'; // Red color for error
     }
     if (modalContent) {
-        modalContent.textContent = 'Your shift swap request has been sent to the RD for approval. You will receive an email notification once the RD has made a decision. Both RAs involved will be notified of the final decision.';
+        modalContent.textContent = message;
     }
     
-    modal.style.display = 'flex';
+    if (modal) {
+        modal.style.display = 'flex';
+    }
 }
-    showSuccessModal() {
-        const modal = document.getElementById('successModal');
-        if (modal) {
-            modal.style.display = 'flex';
+
+async syncSwapToGoogleSheets() {
+    const swapData = {
+        action: 'swap',
+        yourShiftDate: this.swapState.selectedYourShift.date,
+        yourShiftRA: this.swapState.selectedYourShift.ra,
+        yourShiftType: this.swapState.selectedYourShift.type,
+        targetShiftDate: this.swapState.selectedTargetShift.date,
+        targetShiftRA: this.swapState.selectedTargetShift.ra,
+        targetShiftType: this.swapState.selectedTargetShift.type
+    };
+
+    console.log('Syncing swap to Google Sheets:', swapData);
+    
+    try {
+        // Try POST first (as your doPost function expects)
+        console.log('Attempting POST request...');
+        const response = await fetch("https://script.google.com/macros/s/AKfycbyprKhudlfA4e2fjcdRuA-wYMRfdgB4nZl3uNIMIqDO0xeYQcIfovqihUKK1yghTRPdpA/exec", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(swapData),
+            mode: 'cors'
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+
+        const result = await response.json();
+        console.log('Google Sheets sync response:', result);
+        
+        if (!result.success) {
+            throw new Error(result.error || 'Unknown error from Google Sheets');
+        }
+        
+        return result;
+        
+    } catch (error) {
+        console.error('POST request failed:', error);
+        
+        // Fallback: Try GET request (your doGet function does handle swap action)
+        console.log('Trying GET request as fallback...');
+        try {
+            const params = new URLSearchParams(swapData);
+            const getUrl = `https://script.google.com/macros/s/AKfycbyprKhudlfA4e2fjcdRuA-wYMRfdgB4nZl3uNIMIqDO0xeYQcIfovqihUKK1yghTRPdpA/exec?${params.toString()}`;
+            
+            console.log('GET URL:', getUrl);
+            
+            const getResponse = await fetch(getUrl, {
+                method: 'GET',
+                mode: 'cors'
+            });
+
+            console.log('GET Response status:', getResponse.status);
+            
+            if (!getResponse.ok) {
+                throw new Error(`HTTP error! status: ${getResponse.status}`);
+            }
+
+            const getResult = await getResponse.json();
+            console.log('GET Response:', getResult);
+            
+            if (!getResult.success) {
+                throw new Error(getResult.error || 'Unknown error from Google Sheets');
+            }
+            
+            return getResult;
+            
+        } catch (getError) {
+            console.error('GET request also failed:', getError);
+            throw new Error(`Both POST and GET requests failed. POST: ${error.message}, GET: ${getError.message}`);
         }
     }
+}
+
+
+ updateLocalShiftsAfterSwap() {
+     // Update the local shifts array to reflect the swap
+     const yourShift = this.shifts.find(shift => shift.id === this.swapState.selectedYourShift.id);
+     const targetShift = this.shifts.find(shift => shift.id === this.swapState.selectedTargetShift.id);
+     
+     if (yourShift && targetShift) {
+         // Swap the RAs
+         const tempRA = yourShift.ra;
+         yourShift.ra = targetShift.ra;
+         targetShift.ra = tempRA;
+         
+         // Re-render the schedule and summary
+         this.renderSchedule();
+         this.renderRASummary();
+         this.renderCalendar();
+     }
+ }
+
+         showSuccessModal() {
+         const modal = document.getElementById('successModal');
+         const modalHeader = modal.querySelector('.modal-header h3');
+         const modalContent = modal.querySelector('.modal-content p');
+         const modalIcon = modal.querySelector('.success-icon i');
+         
+         if (modalHeader) modalHeader.textContent = 'Swap Completed Successfully!';
+         if (modalIcon) {
+             modalIcon.className = 'fas fa-check-circle';
+             modalIcon.parentElement.style.color = '#10B981'; // Green color for success
+         }
+         if (modalContent) {
+             modalContent.textContent = 'Your shift swap has been completed! The schedule has been updated with the new assignments.';
+         }
+         
+         if (modal) {
+             modal.style.display = 'flex';
+         }
+     }
 
     hideSuccessModal() {
         const modal = document.getElementById('successModal');
@@ -856,92 +1009,92 @@ showApprovalRequestSent() {
         scheduleGrid.appendChild(monthCard);
     }
 
-    renderCalendar() {
-        const calendarTitle = document.getElementById('calendarTitle');
-        const calendarDays = document.getElementById('calendarDays');
-        
-        if (!calendarTitle || !calendarDays) return;
-        
-        const monthNames = [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
-        ];
-        
-        const year = this.currentCalendarDate.getFullYear();
-        const month = this.currentCalendarDate.getMonth();
-        
-        calendarTitle.textContent = `${monthNames[month]} ${year}`;
-        
-        // Clear existing calendar days
-        calendarDays.innerHTML = '';
-        
-        // Get first day of the month and number of days
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const daysInMonth = lastDay.getDate();
-        const startingDayOfWeek = firstDay.getDay();
-        
-        // Get previous month's last days
-        const prevMonth = new Date(year, month - 1, 0);
-        const daysInPrevMonth = prevMonth.getDate();
-        
-        // Add previous month's trailing days
-        for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-            const dayNum = daysInPrevMonth - i;
-            const dayCell = this.createCalendarDayCell(dayNum, true, year, month - 1);
-            calendarDays.appendChild(dayCell);
-        }
-        
-        // Add current month's days
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dayCell = this.createCalendarDayCell(day, false, year, month);
-            calendarDays.appendChild(dayCell);
-        }
-        
-        // Add next month's leading days to fill the grid
-        const totalCells = calendarDays.children.length;
-        const remainingCells = 42 - totalCells; // 6 rows × 7 days
-        for (let day = 1; day <= remainingCells; day++) {
-            const dayCell = this.createCalendarDayCell(day, true, year, month + 1);
-            calendarDays.appendChild(dayCell);
+renderCalendar() {
+    const calendarTitle = document.getElementById('calendarTitle');
+    const calendarDays = document.getElementById('calendarDays');
+    
+    if (!calendarTitle || !calendarDays) return;
+    
+    const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    const year = this.currentCalendarDate.getFullYear();
+    const month = this.currentCalendarDate.getMonth();
+    
+    calendarTitle.textContent = `${monthNames[month]} ${year}`;
+    
+    // Clear existing calendar days
+    calendarDays.innerHTML = '';
+    
+    // Get first day of the month and number of days
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    // Add empty cells for days before the month starts
+    for (let i = 0; i < startingDayOfWeek; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'calendar-day-cell empty-day';
+        calendarDays.appendChild(emptyCell);
+    }
+    
+    // Add current month's days only
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayCell = this.createCalendarDayCell(day, false, year, month);
+        calendarDays.appendChild(dayCell);
+    }
+    
+    // Fill remaining cells if needed (optional - for visual balance)
+    const totalCells = calendarDays.children.length;
+    const remainingCells = Math.ceil(totalCells / 7) * 7 - totalCells;
+    if (remainingCells > 0 && remainingCells < 7) {
+        for (let i = 0; i < remainingCells; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'calendar-day-cell empty-day';
+            calendarDays.appendChild(emptyCell);
         }
     }
+}
 
-    createCalendarDayCell(dayNum, isOtherMonth, year, month) {
-        const dayCell = document.createElement('div');
-        dayCell.className = 'calendar-day-cell';
-        
-        if (isOtherMonth) {
-            dayCell.classList.add('other-month');
-        }
-        
-        // Check if this is today
-        const today = new Date();
-        const cellDate = new Date(year, month, dayNum);
-        if (cellDate.toDateString() === today.toDateString()) {
-            dayCell.classList.add('today');
-        }
-        
-        // Create date string for finding shifts
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-        
-        // Find shifts for this day
-        let dayShifts = this.shifts.filter(shift => shift.date === dateStr);
-        
-        // Filter by selected RA if applicable
-        if (this.selectedRA !== 'all') {
-            dayShifts = dayShifts.filter(shift => shift.ra === this.selectedRA);
-        }
-        
-        dayCell.innerHTML = `
-            <div class="calendar-day-number">${dayNum}</div>
-            <div class="calendar-shifts">
-                ${this.renderCalendarShifts(dayShifts)}
-            </div>
-        `;
-        
-        return dayCell;
+createCalendarDayCell(dayNum, isOtherMonth, year, month) {
+    const dayCell = document.createElement('div');
+    dayCell.className = 'calendar-day-cell';
+    
+    if (isOtherMonth) {
+        dayCell.classList.add('other-month');
+        return dayCell; // Return empty cell for other months
     }
+    
+    // Check if this is today
+    const today = new Date();
+    const cellDate = new Date(year, month, dayNum);
+    if (cellDate.toDateString() === today.toDateString()) {
+        dayCell.classList.add('today');
+    }
+    
+    // Create date string for finding shifts
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+    
+    // Find shifts for this day
+    let dayShifts = this.shifts.filter(shift => shift.date === dateStr);
+    
+    // Filter by selected RA if applicable
+    if (this.selectedRA !== 'all') {
+        dayShifts = dayShifts.filter(shift => shift.ra === this.selectedRA);
+    }
+    
+    dayCell.innerHTML = `
+        <div class="calendar-day-number">${dayNum}</div>
+        <div class="calendar-shifts">
+            ${this.renderCalendarShifts(dayShifts)}
+        </div>
+    `;
+    
+    return dayCell;
+}
 
     renderCalendarShifts(shifts) {
         if (shifts.length === 0) return '';
